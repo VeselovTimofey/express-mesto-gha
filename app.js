@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const http2 = require('http2');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -20,7 +21,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Неправильный путь.' });
+  res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Неправильный путь.' });
 });
 
 app.listen(PORT, () => {
