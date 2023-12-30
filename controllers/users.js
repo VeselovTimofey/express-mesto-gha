@@ -4,7 +4,7 @@ const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+      res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
     });
 };
 
@@ -12,16 +12,16 @@ const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден.' })
+        res.status(404).send({ message: 'Запрашиваемый пользователь не найден.' });
       } else {
-        res.send({ data: user })
+        res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Некорректный id пользователя.' })
+        res.status(400).send({ message: 'Некорректный id пользователя.' });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
     });
 };
@@ -33,9 +33,9 @@ const createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}` })
+        res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}` });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
     });
 };
@@ -45,9 +45,9 @@ const updateUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}` })
+        res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}` });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
     });
 };
@@ -59,11 +59,13 @@ const updateAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}` })
+        res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}` });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+        res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
     });
 };
 
-module.exports = { getUsers, getUserById, createUser, updateUser, updateAvatar };
+module.exports = {
+  getUsers, getUserById, createUser, updateUser, updateAvatar,
+};
