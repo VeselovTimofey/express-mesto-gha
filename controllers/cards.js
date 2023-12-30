@@ -3,7 +3,9 @@ const Card = require('../models/card');
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      return res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+    });
 };
 
 const createCard = (req, res) => {
@@ -12,13 +14,23 @@ const createCard = (req, res) => {
 
   Card.create({name, link, owner})
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError'){
+        return res.status(400).send({ message: `Были переданы некорректные данные: ${err.message}`})
+      }
+      return res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+    });
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Запрашиваемая карточка не найдена.'})
+      }
+      return res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+    });
 };
 
 const likeCard = (req, res) => {
@@ -28,7 +40,9 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      return res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -38,7 +52,9 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      return res.status(500).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` })
+    });
 };
 
 module.exports = { getCards, createCard, deleteCard, likeCard, dislikeCard };
