@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const http2 = require('http2');
 const mongoose = require('mongoose');
 
@@ -46,7 +47,7 @@ const createUser = (req, res) => {
     });
 };
 
-const _userUpdateLogic = (res, req, body) => {
+const _userUpdateLogic = (req, res, body) => {
   User.findByIdAndUpdate(req.user._id, body, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
@@ -58,14 +59,21 @@ const _userUpdateLogic = (res, req, body) => {
     });
 };
 
-const updateUser = (req, res) => {
-  _userUpdateLogic(res, req, req.body);
-};
+function updateUserDecorator(func) {
+  return function (req, res) {
+    func(req, res, req.body);
+  };
+}
 
-const updateAvatar = (req, res) => {
-  const { avatar } = req.body;
-  _userUpdateLogic(res, req, { avatar });
-};
+function updateAvatarDecorator(func) {
+  return function (req, res) {
+    const { avatar } = req.body;
+    func(req, res, { avatar });
+  };
+}
+
+const updateUser = updateUserDecorator(_userUpdateLogic);
+const updateAvatar = updateAvatarDecorator(_userUpdateLogic);
 
 module.exports = {
   getUsers, getUserById, createUser, updateUser, updateAvatar,
