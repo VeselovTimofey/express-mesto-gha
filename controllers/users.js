@@ -46,8 +46,8 @@ const createUser = (req, res) => {
     });
 };
 
-const updateUser = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
+const _userUpdateLogic = (res, req, body) => {
+  User.findByIdAndUpdate(req.user._id, body, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -58,18 +58,13 @@ const updateUser = (req, res) => {
     });
 };
 
+const updateUser = (req, res) => {
+  _userUpdateLogic(res, req, req.body);
+};
+
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: `Были переданы некорректные данные: ${err.message}` });
-      } else {
-        res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
-      }
-    });
+  _userUpdateLogic(res, req, { avatar });
 };
 
 module.exports = {
