@@ -14,17 +14,17 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  User.findById(req.params.userId)
+  User.findById(req.params.userId).orFail()
     .then((user) => {
-      if (!user) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден.' });
-      } else {
+      if (user) {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id пользователя.' });
+      } else if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден.' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }

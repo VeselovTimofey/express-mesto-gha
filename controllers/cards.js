@@ -31,15 +31,15 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
-      if (!card) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
-      } else {
+      if (card) {
         res.send({ data: card });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id карточки.' });
+      } else if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
@@ -51,17 +51,17 @@ const likeCard = (req, res) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
+  ).orFail()
     .then((card) => {
-      if (!card) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
-      } else {
+      if (card) {
         res.send({ data: card });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id карточки.' });
+      } else if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
@@ -73,17 +73,17 @@ const dislikeCard = (req, res) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  )
+  ).orFail()
     .then((card) => {
-      if (!card) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
-      } else {
+      if (card) {
         res.send({ data: card });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id карточки.' });
+      } else if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
       }
