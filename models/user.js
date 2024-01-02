@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -28,4 +30,20 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new Error('Неправильные почта или пароль'));
+          }
+          const token = jwt.sign({ _id: user._id }, 'd30bee6b8f85632012147b57c887203f66b3dbbafdca45f32a2db90fa7f65c88', { expiresIn: '7d' });
+          return token;
+        });
+    });
+};
 module.exports = mongoose.model('user', userSchema);

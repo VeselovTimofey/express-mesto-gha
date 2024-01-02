@@ -5,7 +5,10 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const {
-  HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_UNAUTHORIZED,
 } = http2.constants;
 const User = require('../models/user');
 
@@ -41,7 +44,7 @@ const createUser = (req, res) => {
   } = req.body;
 
   if (!validator.isEmail(email)) {
-    throw new Error('Введите валидный email.');
+    return Promise.reject(new Error('Введите валидный email.'));
   }
 
   bcrypt.hash(password, 10)
@@ -91,6 +94,18 @@ function updateAvatarDecorator(func) {
 const updateUser = updateUserDecorator(_userUpdateLogic);
 const updateAvatar = updateAvatarDecorator(_userUpdateLogic);
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((token) => {
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true })
+        .end();
+    })
+    .catch((err) => {
+      res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: err.message });
+    });
+};
+
 module.exports = {
-  getUsers, getUserById, createUser, updateUser, updateAvatar,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login,
 };
