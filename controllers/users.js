@@ -1,6 +1,8 @@
 /* eslint-disable func-names */
 const http2 = require('http2');
 const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const {
   HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST,
@@ -34,9 +36,22 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, email, password, about, avatar,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  if (!validator.isEmail(email)) {
+    throw new Error('Введите валидный email.');
+  }
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      email,
+      password: hash,
+      about,
+      avatar,
+    }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
