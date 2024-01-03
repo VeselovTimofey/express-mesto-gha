@@ -1,9 +1,14 @@
 /* eslint-disable func-names */
 const http2 = require('http2');
 const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const {
-  HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_UNAUTHORIZED,
 } = http2.constants;
 const User = require('../models/user');
 
@@ -34,9 +39,22 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, email, password, about, avatar,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  if (!validator.isEmail(email)) {
+    Promise.reject(new Error('Введите валидный email.'));
+  }
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      email,
+      password: hash,
+      about,
+      avatar,
+    }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -76,6 +94,31 @@ function updateAvatarDecorator(func) {
 const updateUser = updateUserDecorator(_userUpdateLogic);
 const updateAvatar = updateAvatarDecorator(_userUpdateLogic);
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((token) => {
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true })
+        .end();
+    })
+    .catch((err) => {
+      res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: err.message });
+    });
+};
+
+const getMe = (req, res) => {
+  const { _id } = req.user;
+  User.findById(_id).orFail()
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+      }
+    })
+    .catch((err) => {
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
+    });
+};
+
 module.exports = {
-  getUsers, getUserById, createUser, updateUser, updateAvatar,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login, getMe,
 };

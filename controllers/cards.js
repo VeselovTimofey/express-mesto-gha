@@ -30,20 +30,29 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.cardId).orFail()
+  Card.findById(req.params.cardId).orFail()
     .then((card) => {
-      if (card) {
-        res.send({ data: card });
+      if (req.user._id !== card.owner._id.valueOf()) {
+        return Promise.reject(new Error('Нельзя удалять чужую карточку.'));
       }
+      Card.findByIdAndDelete(req.params.cardId).orFail()
+        .then((oldCard) => {
+          if (oldCard) {
+            res.send({ data: oldCard });
+          }
+        })
+        .catch((err) => {
+          if (err instanceof mongoose.Error.CastError) {
+            res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id карточки.' });
+          } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+            res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
+          } else {
+            res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
+          }
+        });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный id карточки.' });
-      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена.' });
-      } else {
-        res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
-      }
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
