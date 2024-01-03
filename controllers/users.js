@@ -44,7 +44,7 @@ const createUser = (req, res) => {
   } = req.body;
 
   if (!validator.isEmail(email)) {
-    return Promise.reject(new Error('Введите валидный email.'));
+    Promise.reject(new Error('Введите валидный email.'));
   }
 
   bcrypt.hash(password, 10)
@@ -106,6 +106,19 @@ const login = (req, res) => {
     });
 };
 
+const getMe = (req, res) => {
+  const { _id } = req.user;
+  User.findById(_id).orFail()
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+      }
+    })
+    .catch((err) => {
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: `Произошла ошибка ${err.name}, с текстом ${err.message}.` });
+    });
+};
+
 module.exports = {
-  getUsers, getUserById, createUser, updateUser, updateAvatar, login,
+  getUsers, getUserById, createUser, updateUser, updateAvatar, login, getMe,
 };
