@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
   const { cookie } = req.headers;
 
   if (!cookie) {
-    res.status(http2.constants.HTTP_STATUS_UNAUTHORIZED).send({ message: 'Необходима авторизация' });
+    return res.status(http2.constants.HTTP_STATUS_UNAUTHORIZED).send({ message: 'Необходима авторизация' });
   }
 
   const token = cookie.replace('jwt=', '');
