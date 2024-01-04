@@ -3,14 +3,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const {
-  PATH = 'mongodb://localhost:27017/mestodb',
+  PATHDB = 'mongodb://localhost:27017/mestodb',
   PORT = 3000,
 } = process.env;
 const app = express();
 
 app.use(express.json());
 
-mongoose.connect(PATH, {});
+mongoose.connect(PATHDB, {});
 
 app.use('/', require('./routes/index'));
 
