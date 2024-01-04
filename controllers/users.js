@@ -49,7 +49,16 @@ const createUser = (req, res, next) => {
 
 const _userUpdateLogic = (req, res, body, next) => {
   User.findByIdAndUpdate(req.user._id, body, { new: true, runValidators: true })
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      const {
+        name, email, about, avatar,
+      } = user;
+      res.send({
+        data: {
+          name, email, about, avatar,
+        },
+      });
+    })
     .catch((err) => next(err));
 };
 

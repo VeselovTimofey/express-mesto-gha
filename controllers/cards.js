@@ -19,12 +19,8 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId).orFail()
     .then((card) => {
-      try {
-        if (req.user._id !== card.owner._id.valueOf()) {
-          Promise.reject(new SomeoneElseCard());
-        }
-      } catch (err) {
-        next(err);
+      if (req.user._id !== card.owner._id.valueOf()) {
+        throw new SomeoneElseCard();
       }
       Card.findByIdAndDelete(req.params.cardId).orFail()
         .then((oldCard) => {
