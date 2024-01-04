@@ -1,9 +1,3 @@
-const http2 = require('http2');
-const mongoose = require('mongoose');
-
-const {
-  HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST,
-} = http2.constants;
 const Card = require('../models/card');
 const SomeoneElseCard = require('../errors/someone_else_card');
 
