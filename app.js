@@ -1,12 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 
-const { PORT = 3000 } = process.env;
+const {
+  PATH = 'mongodb://localhost:27017/mestodb',
+  PORT = 3000,
+} = process.env;
 const app = express();
 
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {});
+mongoose.connect(PATH, {});
 
 app.use('/', require('./routes/index'));
 

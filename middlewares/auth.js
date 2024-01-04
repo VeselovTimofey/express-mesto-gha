@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
       throw new Unauthorized();
     }
   } catch (err) {
-    res.status(err.statusCode).send({ message: err.message });
+    next(err);
   }
 
   const token = cookie.replace('jwt=', '');
@@ -18,9 +18,9 @@ module.exports = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, 'd30bee6b8f85632012147b57c887203f66b3dbbafdca45f32a2db90fa7f65c88');
+    payload = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    res.status(err.statusCode).send({ message: err.message });
+    next(err);
   }
 
   req.user = payload;

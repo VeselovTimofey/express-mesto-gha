@@ -17,8 +17,10 @@ module.exports = (err, req, res, next) => {
     res.status(HTTP_STATUS_BAD_REQUEST).send({ message: `Были переданы некорректные данные: ${err.message}` });
   } else if (err.name === 'MongoServerError' && err.code === 11000) {
     res.status(HTTP_STATUS_CONFLICT).send({ message: 'Такой email уже зарегистрирован.' });
+  } else if (err.statusCode) {
+    res.status(err.statusCode).send({ message: err.message });
   } else {
-    res.status(err.statusCode || HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: err.message });
+    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
   }
   next();
 };
