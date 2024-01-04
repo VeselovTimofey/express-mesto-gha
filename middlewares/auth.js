@@ -2,6 +2,10 @@ const jwt = require('jsonwebtoken');
 
 const Unauthorized = require('../errors/unauthorized');
 
+const {
+  JWT_SECRET = 'd30bee6b8f85632012147b57c887203f66b3dbbafdca45f32a2db90fa7f65c88',
+} = process.env;
+
 module.exports = (req, res, next) => {
   const { cookie } = req.headers;
 
@@ -10,7 +14,7 @@ module.exports = (req, res, next) => {
       throw new Unauthorized();
     }
   } catch (err) {
-    res.status(err.statusCode).send({ message: err.message });
+    next(err);
   }
 
   const token = cookie.replace('jwt=', '');
@@ -18,9 +22,9 @@ module.exports = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    res.status(err.statusCode).send({ message: err.message });
+    next(err);
   }
 
   req.user = payload;

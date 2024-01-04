@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const {
+  JWT_SECRET = 'd30bee6b8f85632012147b57c887203f66b3dbbafdca45f32a2db90fa7f65c88',
+} = process.env;
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -47,7 +51,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
           if (!matched) {
             return Promise.reject(new Error('Неправильные почта или пароль'));
           }
-          const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
           return token;
         });
     });

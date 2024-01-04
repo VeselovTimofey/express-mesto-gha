@@ -2,15 +2,13 @@
 const Card = require('../models/card');
 const SomeoneElseCard = require('../errors/someone_else_card');
 
-const getCards = (req, res, next, err) => {
-  if (err) { next(err); }
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch((err) => next(err));
 };
 
-const createCard = (req, res, next, err) => {
-  if (err) { next(err); }
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -19,8 +17,7 @@ const createCard = (req, res, next, err) => {
     .catch((err) => next(err));
 };
 
-const deleteCard = (req, res, next, err) => {
-  if (err) { next(err); }
+const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId).orFail()
     .then((card) => {
       if (req.user._id !== card.owner._id.valueOf()) {
@@ -37,8 +34,7 @@ const deleteCard = (req, res, next, err) => {
     .catch((err) => next(err));
 };
 
-const likeCard = (req, res, next, err) => {
-  if (err) { next(err); }
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -52,8 +48,7 @@ const likeCard = (req, res, next, err) => {
     .catch((err) => next(err));
 };
 
-const dislikeCard = (req, res, next, err) => {
-  if (err) { next(err); }
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },

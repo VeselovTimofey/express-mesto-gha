@@ -7,15 +7,13 @@ const User = require('../models/user');
 const NotValidEmail = require('../errors/notvalid_email');
 const LoginDeny = require('../errors/login_deny');
 
-const getUsers = (req, res, next, err) => {
-  if (err) { next(err); }
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => next(err));
 };
 
-const getUserById = (req, res, next, err) => {
-  if (err) { next(err); }
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId).orFail()
     .then((user) => {
       if (user) {
@@ -68,16 +66,14 @@ const _userUpdateLogic = (req, res, body, next) => {
 };
 
 function updateUserDecorator(func) {
-  return function (req, res, next, err) {
-    if (err) { next(err); }
+  return function (req, res, next) {
     const { name, about } = req.body;
     func(req, res, { name, about }, next);
   };
 }
 
 function updateAvatarDecorator(func) {
-  return function (req, res, next, err) {
-    if (err) { next(err); }
+  return function (req, res, next) {
     const { avatar } = req.body;
     func(req, res, { avatar }, next);
   };
@@ -95,8 +91,7 @@ const login = (req, res, next) => {
     .catch((err) => next(new LoginDeny(err)));
 };
 
-const getMe = (req, res, next, err) => {
-  if (err) { next(err); }
+const getMe = (req, res, next) => {
   const { _id } = req.user;
   User.findById(_id).orFail()
     .then((user) => {
