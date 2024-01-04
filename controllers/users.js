@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable func-names */
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -6,13 +7,15 @@ const User = require('../models/user');
 const NotValidEmail = require('../errors/notvalid_email');
 const LoginDeny = require('../errors/login_deny');
 
-const getUsers = (req, res, next) => {
+const getUsers = (req, res, next, err) => {
+  if (err) { next(err); }
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => next(err));
 };
 
-const getUserById = (req, res, next) => {
+const getUserById = (req, res, next, err) => {
+  if (err) { next(err); }
   User.findById(req.params.userId).orFail()
     .then((user) => {
       if (user) {
@@ -65,14 +68,16 @@ const _userUpdateLogic = (req, res, body, next) => {
 };
 
 function updateUserDecorator(func) {
-  return function (req, res, next) {
+  return function (req, res, next, err) {
+    if (err) { next(err); }
     const { name, about } = req.body;
     func(req, res, { name, about }, next);
   };
 }
 
 function updateAvatarDecorator(func) {
-  return function (req, res, next) {
+  return function (req, res, next, err) {
+    if (err) { next(err); }
     const { avatar } = req.body;
     func(req, res, { avatar }, next);
   };
@@ -90,7 +95,8 @@ const login = (req, res, next) => {
     .catch((err) => next(new LoginDeny(err)));
 };
 
-const getMe = (req, res, next) => {
+const getMe = (req, res, next, err) => {
+  if (err) { next(err); }
   const { _id } = req.user;
   User.findById(_id).orFail()
     .then((user) => {

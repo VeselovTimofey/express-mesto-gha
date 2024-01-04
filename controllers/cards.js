@@ -1,13 +1,16 @@
+/* eslint-disable no-shadow */
 const Card = require('../models/card');
 const SomeoneElseCard = require('../errors/someone_else_card');
 
-const getCards = (req, res, next) => {
+const getCards = (req, res, next, err) => {
+  if (err) { next(err); }
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch((err) => next(err));
 };
 
-const createCard = (req, res, next) => {
+const createCard = (req, res, next, err) => {
+  if (err) { next(err); }
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -16,7 +19,8 @@ const createCard = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-const deleteCard = (req, res, next) => {
+const deleteCard = (req, res, next, err) => {
+  if (err) { next(err); }
   Card.findById(req.params.cardId).orFail()
     .then((card) => {
       if (req.user._id !== card.owner._id.valueOf()) {
@@ -33,7 +37,8 @@ const deleteCard = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-const likeCard = (req, res, next) => {
+const likeCard = (req, res, next, err) => {
+  if (err) { next(err); }
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -47,7 +52,8 @@ const likeCard = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-const dislikeCard = (req, res, next) => {
+const dislikeCard = (req, res, next, err) => {
+  if (err) { next(err); }
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
