@@ -43,21 +43,23 @@ const createUser = (req, res, next) => {
       about,
       avatar,
     }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      res.send({
+        data: {
+          name: user.name,
+          email: user.email,
+          about: user.about,
+          avatar: user.avatar,
+        },
+      });
+    })
     .catch((err) => next(err));
 };
 
 const _userUpdateLogic = (req, res, body, next) => {
   User.findByIdAndUpdate(req.user._id, body, { new: true, runValidators: true })
     .then((user) => {
-      const {
-        name, email, about, avatar,
-      } = user;
-      res.send({
-        data: {
-          name, email, about, avatar,
-        },
-      });
+      res.send({ data: user });
     })
     .catch((err) => next(err));
 };
