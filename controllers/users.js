@@ -53,16 +53,16 @@ const _userUpdateLogic = (req, res, body, next) => {
 };
 
 function updateUserDecorator(func) {
-  return function (req, res) {
+  return function (req, res, next) {
     const { name, about } = req.body;
-    func(req, res, { name, about });
+    func(req, res, { name, about }, next);
   };
 }
 
 function updateAvatarDecorator(func) {
-  return function (req, res) {
+  return function (req, res, next) {
     const { avatar } = req.body;
-    func(req, res, { avatar });
+    func(req, res, { avatar }, next);
   };
 }
 
