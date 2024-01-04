@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 const NotValidEmail = require('../errors/notvalid_email');
+const LoginDeny = require('../errors/login_deny');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -73,10 +74,9 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((token) => {
-      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true })
-        .end();
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ email: req.body.email });
     })
-    .catch((err) => next(err));
+    .catch((err) => next(new LoginDeny(err)));
 };
 
 const getMe = (req, res, next) => {
